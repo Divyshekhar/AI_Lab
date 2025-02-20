@@ -1,41 +1,40 @@
-def dls(graph, node, depth, visited, path, traversal):
-    if depth < 0:
-        return False
-    
-    visited[node] = True
-    path.append(node)
-    traversal.append(node)
-    
-    if depth == 0:
-        return True
-    
-    for neighbor, is_connected in enumerate(graph[node]):
-        if is_connected and not visited[neighbor]:
-            if dls(graph, neighbor, depth - 1, visited, path, traversal):
-                return True
-    
-    path.pop()
-    visited[node] = False
-    return False
+class Graph:
+    def __init__(self, num_vertices):
+        self.num_vertices = num_vertices
+        self.graph = [[0] * num_vertices  for _ in range(num_vertices)]
 
-def iterative_dls(graph, start):
-    num_nodes = len(graph)
-    for depth in range(num_nodes):
-        visited = [False] * num_nodes
-        path = []
-        traversal = []
-        dls(graph, start, depth, visited, path, traversal)
-        print(f"Traversal at depth {depth}: {traversal}")
+    def addEdge(self, u, v):
+        self.graph[u][v] = 1
+    
+    def dls_helper(self, current, goal, depth_limit, visited):
+        if current == goal:
+            return [goal]
+        if depth_limit <= 0:
+            return None
+        visited.add(current)
+        for neighbour in range(self.num_vertices):
+            if self.graph[current][neighbour] and neighbour not in visited:
+                path = self.dls_helper(neighbour, goal, depth_limit, visited)
+                if path:
+                    return [current]+path
+        visited.remove(current)
+        return None
 
-# Example usage:
-adjacency_matrix = [
-    [0, 1, 1, 1, 1, 1],
-    [1, 0, 1, 1, 1, 1],
-    [1, 1, 0, 1, 1, 1],
-    [1, 1, 1, 0, 1, 1],
-    [1, 1, 1, 1, 0, 1],
-    [1, 1, 1, 1, 1, 0]
-]
+    def depth_limited_search(self, start, goal, max_depth):
+        for depth in range(max_depth + 1):
+            visited = set()
+            path = self._dls_helper(start, goal, depth, visited)
+            print(f"Depth Level {depth}: {path}")
+            if path:
+                return path
+        return None
 
-start_node = 0
-iterative_dls(adjacency_matrix, start_node)
+if __name__ == '__main__':
+    g = Graph(6)
+    g.addEdge(0, 1)
+    g.addEdge(0, 2)
+    g.addEdge(1, 3)
+    g.addEdge(2, 4)
+    g.addEdge(3, 5)
+    g.addEdge(4, 5)
+    print("Depth-Limited Search Path:", g.depth_limited_search(0, 5, 3))
